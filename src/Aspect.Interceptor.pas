@@ -1,25 +1,3 @@
-// ***************************************************************************
-//
-// Aspect For Delphi
-//
-// Copyright (c) 2015-2019 Ezequiel Juliano Müller
-//
-// ***************************************************************************
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// ***************************************************************************
-
 unit Aspect.Interceptor;
 
 interface
@@ -45,7 +23,7 @@ type
     procedure Add(const name: string; aspect: IAspect);
     function Contains(const name: string): Boolean;
 
-    procedure Before(
+    procedure OnBefore(
       instance: TObject;
       method: TRttiMethod;
       const args: TArray<TValue>;
@@ -53,14 +31,14 @@ type
       out result: TValue
       );
 
-    procedure After(
+    procedure OnAfter(
       instance: TObject;
       method: TRttiMethod;
       const args: TArray<TValue>;
       var result: TValue
       );
 
-    procedure Exception(
+    procedure OnException(
       instance: TObject;
       method: TRttiMethod;
       const args: TArray<TValue>;
@@ -79,22 +57,22 @@ begin
   fAspects.AddOrSetValue(name, aspect);
 end;
 
-procedure TAspectInterceptor.After(instance: TObject; method: TRttiMethod;
+procedure TAspectInterceptor.OnAfter(instance: TObject; method: TRttiMethod;
   const args: TArray<TValue>; var result: TValue);
 var
   aspectPair: TPair<string, IAspect>;
 begin
   for aspectPair in fAspects do
-    aspectPair.Value.After(instance, method, args, result);
+    aspectPair.Value.OnAfter(instance, method, args, result);
 end;
 
-procedure TAspectInterceptor.Before(instance: TObject; method: TRttiMethod;
+procedure TAspectInterceptor.OnBefore(instance: TObject; method: TRttiMethod;
   const args: TArray<TValue>; out invoke: Boolean; out result: TValue);
 var
   aspectPair: TPair<string, IAspect>;
 begin
   for aspectPair in fAspects do
-    aspectPair.Value.Before(instance, method, args, invoke, result);
+    aspectPair.Value.OnBefore(instance, method, args, invoke, result);
 end;
 
 function TAspectInterceptor.Contains(const name: string): Boolean;
@@ -114,7 +92,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TAspectInterceptor.Exception(instance: TObject;
+procedure TAspectInterceptor.OnException(instance: TObject;
   method: TRttiMethod; const args: TArray<TValue>;
   out raiseException: Boolean; theException: Exception;
   out result: TValue);
@@ -122,7 +100,7 @@ var
   aspectPair: TPair<string, IAspect>;
 begin
   for aspectPair in fAspects do
-    aspectPair.Value.Exception(instance, method, args, raiseException, theException, result);
+    aspectPair.Value.OnException(instance, method, args, raiseException, theException, result);
 end;
 
 end.
